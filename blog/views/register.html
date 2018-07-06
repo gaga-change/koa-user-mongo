@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block title %}注册{% endblock %}
+
+{% block content %}
+  <h1>注册</h1>
+  <p>创建新用户</p>
+  <form id="user">
+    <p><input type="username" placeholder="用户名" name="username"></p>
+    <p><input type="password" placeholder="密码" name="password"></p>
+    <p><input type="submit" value="Create"></p>
+  </form>
+  <script>
+    $('#user').submit(function(e) {
+      e.preventDefault()
+      var username = this.username.value
+      var password = this.password.value
+      $.post('/api/u/register', {
+        username,
+        password
+      }).then(function(res) {
+        if (res.err) {
+          alert(res.err)
+        } else {
+          location.href = '/'
+        }
+      })
+    })
+  </script>
+{% endblock %}

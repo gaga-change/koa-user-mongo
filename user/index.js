@@ -7,35 +7,28 @@
  * 对外插件
  *  权限校验
  *  提前当前用户绑定到 state.user 中
+ * 
+ * 需
+ *  koa-session
+ *  koa-body
  */
 
-const Koa = require('koa')
 const only = require('only')
 const Router = require('koa-router')
-const logger = require('koa-logger')
-const koaBody = require('koa-body')
-const session = require('koa-session')
 
-const app = module.exports = new Koa()
 const router = new Router()
 const users = []
 
-app.keys = ['junn secret 4']
-
-app.use(session({}, app)) // session
-
-router.post('/register', register)
-    .post('/login', login)
-    .get('/user', currentUser)
-    .get('/logout', logout)
-    .get('/', userList)
-
-if (!module.parent) {
-    app.use(logger())
-    app.use(koaBody())
+exports.routes = () => {
+    const base = '/u'
+    router
+        .post(base + '/register', register)
+        .post(base + '/login', login)
+        .get(base + '/user', currentUser)
+        .get(base + '/logout', logout)
+        .get(base + '/users', userList)
+    return router.routes()
 }
-
-app.use(router.routes())
 
 /**
  * 获取当前用户
@@ -64,6 +57,7 @@ async function userList (ctx) {
 async function register (ctx) {
     let user = ctx.request.body
     user = only(user, 'username password')
+    if (!user.username || !user.password) ctx.throw(400, 'username&password required', { user })
     if (users.some(item => item.username == user.username)) {
         return ctx.body = { err: '用户名已存在' }
     }
@@ -101,5 +95,3 @@ async function logout (ctx) {
     ctx.session = null
     ctx.body = {}
 }
-
-app.listen(3000, () => console.log(3000))
