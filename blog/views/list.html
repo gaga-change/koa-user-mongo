@@ -3,13 +3,15 @@
 {% block title %}Posts{% endblock %}
 
 {% block content %}
-  <h1>Posts</h1>
-  <p>You have <strong>{{ posts.length }}</strong> posts!</p>
-  <p><a href="/post/new">Create a Post</a></p>
+  <h1>笔记列表</h1>
+  <p>你有 <strong>{{ posts.length }}</strong> 条笔记!</p>
+  <p><a href="/post/new">创建笔记</a></p>
+  <p><a href="/logout">退出登入 【{{user.username}}】</a></p>
   <ul id="posts">
     {% for post in posts %}
       <li>
         <h2>{{ post.title }}</h2>
+        <span>作者：{{ post.user.username }}</span>
         <p><a href="/post/{{ post.id }}">Read post</a></p>
       </li>
     {% endfor %}

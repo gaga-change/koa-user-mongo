@@ -32,6 +32,7 @@ router.get('/', list)
   .get('/post/new', add)
   .get('/post/:id', show)
   .get('/register', register)
+  .get('/logout', logout)
   .post('/post', create)
 
 app.use(router.routes())
@@ -41,10 +42,19 @@ app.use(router.routes())
  */
 
 async function list (ctx) {
-  await ctx.render('list', { posts: posts })
+  let user = ctx.session.user
+  if (!user) {
+    ctx.redirect('/register')
+  } else
+    await ctx.render('list', { posts, user })
 }
 
 async function register (ctx) {
+  await ctx.render('register')
+}
+
+async function logout(ctx) {
+  ctx.session = null
   await ctx.render('register')
 }
 
@@ -75,6 +85,7 @@ async function create (ctx) {
   const post = ctx.request.body
   const id = posts.push(post) - 1
   post.created_at = new Date()
+  post.user = ctx.session.user
   post.id = id
   ctx.redirect('/')
 }

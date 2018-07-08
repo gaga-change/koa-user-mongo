@@ -19,8 +19,7 @@ const Router = require('koa-router')
 const router = new Router()
 const users = []
 
-exports.routes = () => {
-    const base = '/u'
+exports.routes = ({base = '/u'} = {}) => {
     router
         .post(base + '/register', register)
         .post(base + '/login', login)
