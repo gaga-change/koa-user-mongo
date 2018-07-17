@@ -14,25 +14,43 @@
  */
 
 const only = require('only')
+const axios = require('axios')
 const Router = require('koa-router')
 
 const router = new Router()
 const users = []
 
-exports.routes = ({base = '/u'} = {}) => {
+exports.routes = ({ base = '/u' } = {}) => {
     router
         .post(base + '/register', register)
         .post(base + '/login', login)
         .get(base + '/user', currentUser)
         .get(base + '/logout', logout)
         .get(base + '/users', userList)
+        .get('/github_callback', githubCallback)
     return router.routes()
+}
+
+/**
+ * github 第三方登入
+ */
+const client_id = '274df6a3dc60b0dd834c'
+const client_secret = 'e8dfc09c2a5544087f4fc01c646d3f57b302e0f5'
+async function githubCallback(ctx) {
+    let code = ctx.query.code
+    let { data: tokenStr } = await axios.post('https://github.com/login/oauth/access_token', {
+        client_id,
+        client_secret,
+        code,
+    })
+    let { data: githubUser } = await axios.get('https://api.github.com/user?' + tokenStr)
+    ctx.body = githubUser
 }
 
 /**
  * 获取当前用户
  */
-async function currentUser (ctx) {
+async function currentUser(ctx) {
     let user = ctx.session.user
     ctx.body = user || {}
 }
@@ -40,7 +58,7 @@ async function currentUser (ctx) {
 /**
  * 获取用户列表
  */
-async function userList (ctx) {
+async function userList(ctx) {
     ctx.body = users.map(user => {
         return {
             username: user.username,
@@ -53,7 +71,7 @@ async function userList (ctx) {
  * 注册
  * 提供两个参数： username(用户名) password(密码)
  */
-async function register (ctx) {
+async function register(ctx) {
     let user = ctx.request.body
     user = only(user, 'username password')
     if (!user.username || !user.password) ctx.throw(400, 'username&password required', { user })
@@ -69,7 +87,7 @@ async function register (ctx) {
  * 登入
  * 提供两个参数： username(用户名) password(密码)
  */
-async function login (ctx) {
+async function login(ctx) {
     let user = ctx.request.body
     user = only(user, 'username password')
     let findUser = null
@@ -90,7 +108,7 @@ async function login (ctx) {
 /**
  * 退出
  */
-async function logout (ctx) {
+async function logout(ctx) {
     ctx.session = null
     ctx.body = {}
 }

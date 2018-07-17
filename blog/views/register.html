@@ -8,9 +8,14 @@
   <form id="user">
     <p><input type="username" placeholder="用户名" name="username"></p>
     <p><input type="password" placeholder="密码" name="password"></p>
-    <p><input type="submit" value="Create"></p>
+    <p><input type="submit" value="注册"></p>
   </form>
+  <button type="button" id="GitHubLoginBtn">GitHub登入</button>
   <script>
+    var clientId = '274df6a3dc60b0dd834c'
+    $('#GitHubLoginBtn').click(function(e) {
+      location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}`
+    })
     $('#user').submit(function(e) {
       e.preventDefault()
       var username = this.username.value
